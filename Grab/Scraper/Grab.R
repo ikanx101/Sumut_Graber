@@ -40,12 +40,12 @@ remote_driver$navigate(url)
 
 # log nama
 nama_file = Sys.time() %>% janitor::make_clean_names()
-nama_file = paste0("~/Documents/Sumut_Graber/Grab/Data/",nama_file," - MEDAN.rda")
+nama_file = paste0("~/Documents/Sumut_Graber/Grab/Data/",nama_file," - BANDUNG.rda")
 
 # mencari klik load more
-button_element <- remote_driver$findElement(using = 'css', value = ".ant-btn-block")
+button_element = remote_driver$findElement(using = 'css', value = ".ant-btn-block")
 # mengklik load more sekian kali
-for(i in 1:25){
+for(i in 1:5){
   button_element$clickElement()
   print(paste0("sudah diklik load more ",i," x"))
   Sys.sleep(3)
@@ -63,12 +63,11 @@ urls = urls[grepl("/restaurant/",urls)]
 links = paste0("https://food.grab.com",urls)
 
 
-
 # buat rumahnya dalam list
 hasil = vector("list", length(links))
 
 # proses scraping semua links
-for(i in 89:length(links)){
+for(i in 1:length(links)){
   hasil[[i]] = scrape_grab(links[i])
 }
 
