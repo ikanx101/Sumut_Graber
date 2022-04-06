@@ -40,7 +40,7 @@ remote_driver$navigate(url)
 
 # log nama
 nama_file = Sys.time() %>% janitor::make_clean_names()
-nama_file = paste0("~/Documents/Sumut_Graber/Grab/Data/Pematang Siantar/Grab/",nama_file," - PEMATANG SIANTAR.rda")
+nama_file = paste0("~/Documents/Sumut_Graber/Grab/Data/Binjai/Grab/",nama_file," - BINJAI.rda")
 
 # mencari klik load more
 button_element = remote_driver$findElement(using = 'css', value = ".ant-btn-block")
