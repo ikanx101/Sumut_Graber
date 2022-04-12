@@ -154,8 +154,25 @@ df_binjai = df_binjai %>% mutate(kota = "binjai")
 df_pematang_siantar = df_pematang_siantar %>% mutate(kota = "pematang siantar")
 df_tebing_tinggi = df_tebing_tinggi %>% mutate(kota = "tebing tinggi")
 df_maps = rbind(df_binjai,df_pematang_siantar) %>% rbind(.,df_tebing_tinggi)
+
+# kita bersihkan terlebih dahulu
+gabung_maps = 
+  df_maps %>% 
+  select(nama,kategori,kota) %>% 
+  group_by(nama,kota) %>% 
+  summarise(kategori_total = paste(kategori,collapse = ",")) %>% 
+  ungroup()
+unique = 
+  df_maps %>% 
+  select(nama,alamat,lat,lng,kota) %>% 
+  distinct()
+df_maps_clean = merge(gabung_maps,unique,all.x = T)
+
 # kita save dulu ya
-save(df_maps,file = "gmaps.rda")
+save(df_maps_clean,file = "gmaps.rda")
+
+
+
 
 # ==============================================================================
 # Gabung Data Grab

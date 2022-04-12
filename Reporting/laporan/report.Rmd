@@ -1,0 +1,288 @@
+---
+title: PRE-ANALISA DATA GRAB DAN GOOGLE MAPS
+subtitle: Untuk Kota Binjai, Pematang Siantar, dan Tebing Tinggi
+author: 
+  - name: Ikang Fadhli
+    affiliation: Market Research Dept. @nutrifood
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 5
+    toc_float: 
+        collapsed: false
+        smooth_scroll: true
+    number_sections: true
+    theme: sandstone
+    highlight: zenburn
+    fig_caption: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("~/Documents/Sumut_Graber/Reporting/laporan")
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(leaflet)
+
+rm(list=ls())
+
+# load data
+load("~/Documents/Sumut_Graber/Reporting/pre processing/gmaps.rda")
+load("~/Documents/Sumut_Graber/Reporting/pre processing/grab.rda")
+
+```
+
+# PENDAHULUAN
+
+## Latar Belakang
+
+## Tujuan
+
+## Pencarian Data
+
+### Google Maps
+
+### Grab Food
+
+# _PRE-PROCESSING_
+
+Untuk data Grab dilakukan _cleaning_ berupa:
+
+1. _Filtering_ resto _chain_.
+1. Mengambil menu hanya makanan saja (_no bundling_).
+
+```{r,include=FALSE}
+library(tidytext)
+
+df_grab = 
+  df_grab %>% 
+  filter(!grepl("beverages|Specialty|Supermarket|Mart|store",kategori_resto,ignore.case = T)) %>% 
+  filter(!grepl("McDonald|kopi|coffee|cafe|boba|buah|richeese|durian|warkop|frozen|tea|kfc|juice",nama_resto,ignore.case = T)) %>% 
+  filter(!grepl("jus|juice|bubble|ml|serut|tissue|cappuchino",menu_resto)) %>% 
+  filter(!grepl("teh|kopi|tea|coffee|cafe|latte|milk|susu|ice",menu_resto,ignore.case = T))
+
+df_grab
+
+df_grab %>% 
+  select(menu_resto) %>% 
+  distinct() %>% 
+  unnest_tokens("words",menu_resto) %>% 
+  group_by(words) %>% 
+  tally() %>% 
+  ungroup() %>% 
+  arrange(desc(n))
+```
+
+# GOOGLE MAPS
+
+## Deskriptif
+
+### Data yang Didapatkan
+
+```{r,echo=FALSE}
+df_maps_clean %>% 
+  group_by(kota) %>% 
+  tally() %>% 
+  ungroup() %>% 
+  ggplot(aes(x = reorder(kota,-n),
+             y = n)
+         ) +
+  geom_col(color = "black",
+           fill = "steelblue") +
+  geom_label(aes(label = paste0(n,
+                                " merchants")
+                 )
+             ) +
+  theme_minimal() +
+  labs(title = "Banyak Data yang Didapatkan",
+       subtitle = "Sumber: Google Maps API") +
+  theme(axis.title = element_blank(),
+        axis.text.y = element_blank())
+```
+
+
+### Sebaran Area
+
+```{r,echo=FALSE}
+leaflet() %>% 
+  addTiles() %>% 
+  addCircleMarkers(lng = df_maps_clean$lng,lat = df_maps_clean$lat,
+                   label = df_maps_clean$nama,
+                   labelOptions = labelOptions(noHide = F))
+```
+
+
+### Banyak Kategori _Merchant_ per Kota
+
+```{r,echo=FALSE}
+df_maps_clean %>% 
+  select(kota,kategori_total) %>% 
+  separate_rows(kategori_total,sep = ",") %>% 
+  group_by(kota,kategori_total) %>% 
+  tally() %>% 
+  ungroup() %>% 
+  ggplot(aes(x = kota,
+             y = n,
+             group = kategori_total)
+         ) +
+  geom_col(aes(fill = kategori_total),
+           color = "black",
+           position = "dodge") +
+  geom_label(aes(y = n + 10,
+                 label = paste0(n," merchants")),
+             position = position_dodge(width = 1),
+             size = 3) +
+  theme_minimal() +
+  labs(title = "Banyak Data yang Didapatkan per Kategori",
+       subtitle = "Sumber: Google Maps API",
+       caption = "Catatan: satu merchant bisa memiliki satu atau lebih kategori",
+       fill = "Keterangan") +
+  theme(axis.title = element_blank(),
+        axis.text.y = element_blank())
+```
+
+# GRAB
+
+```{r,echo=FALSE}
+unique_merchant_grab = 
+  df_grab %>% 
+  select(nama_resto,kategori_resto,rating_resto,kota) %>% 
+  distinct()
+```
+
+## Deskriptif
+
+### Banyak _Merchant_ Per Kota
+
+```{r,echo=FALSE}
+unique_merchant_grab %>% 
+  group_by(kota) %>% 
+  tally() %>% 
+  ungroup() %>% 
+  ggplot(aes(x = reorder(kota,-n),
+             y = n)
+         ) +
+  geom_col(color = "black",
+           fill = "steelblue") +
+  geom_label(aes(label = paste0(n,
+                                " merchants")
+                 )
+             ) +
+  theme_minimal() +
+  labs(title = "Banyak Data yang Didapatkan",
+       subtitle = "Sumber: webscrape GrabFood") +
+  theme(axis.title = element_blank(),
+        axis.text.y = element_blank())
+
+```
+
+### Kategori _Merchant_ per Kota
+
+```{r,echo=FALSE,fig.height=15}
+kategori_merchant_grab = 
+  unique_merchant_grab %>% 
+  separate_rows(kategori_resto) %>% 
+  group_by(kota,kategori_resto) %>% 
+  tally() %>% 
+  ungroup() %>%
+  filter(n > 5) %>% 
+  arrange(kota,desc(n))
+
+kategori_merchant_grab %>% 
+  ggplot(aes(x = reorder(kategori_resto,n),
+             y = n)) +
+  geom_col(color = "black",
+           fill = "steelblue") +
+  geom_label(aes(label = n),
+             size = 3) +
+  facet_wrap(~kota,nrow = 3,ncol = 1,scales = "free") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title = "Detail Kategori Merchants per Kota",
+       subtitle = "Sumber: webscrape GrabFood",
+       caption = "Catatan: satu merchant bisa memiliki satu atau lebih kategori") +
+  theme(axis.title = element_blank(),
+        axis.text.x = element_blank(),
+        strip.background = element_rect(color = "black"))
+```
+
+
+## Sebaran 
+
+### Rating _Merchant_
+
+```{r,echo=FALSE}
+median_rating = 
+  unique_merchant_grab %>% 
+  group_by(kota) %>% 
+  summarise(median = median(rating_resto),
+            mean = mean(rating_resto)) %>% 
+  ungroup()
+
+unique_merchant_grab %>% 
+  ggplot(aes(x = kota,
+             y = rating_resto)) +
+  geom_boxplot() +
+  geom_label(data = median_rating,
+             aes(x = kota, 
+                 y = median,
+                 label = paste0("Median: ",median,"\nMean: ",round(mean,1))
+                 ),
+             size = 2.5) +
+  theme_minimal() +
+  labs(title = "Boxplot: Sebaran Rating Restoran per Kota",
+       subtitle = "Sumber: webscrape GrabFood") +
+  theme(axis.title = element_blank(),
+        axis.text.y = element_blank())
+
+```
+
+### Harga Menu Termahal
+
+```{r,message = FALSE,warning = FALSE, echo=FALSE}
+harga_termahal_merchant = 
+  df_grab %>% 
+  group_by(nama_resto,kategori_resto,kota) %>% 
+  summarise(harga_max = max(harga)) %>% 
+  ungroup() %>% 
+  filter(harga_max > 1)
+
+pendukung_harga = 
+  harga_termahal_merchant %>% 
+  group_by(kota) %>% 
+  summarise(mean = mean(harga_max) %>% round(1),
+            median = median(harga_max),
+            q1 = quantile(harga_max,0.25),
+            q3 = quantile(harga_max,0.75)) %>% 
+  ungroup()
+
+harga_termahal_merchant %>%
+  ggplot(aes(x = kota,
+             y = harga_max)) +
+  geom_boxplot() +
+  geom_label(data = pendukung_harga,
+             aes(x = kota, 
+                 y = q3 + 40000,
+                 label = paste0("Mean: ",mean,
+                                "\nMedian: ",median,
+                                "\nQ1: ",round(q1,1),
+                                "\nQ3: ",round(q3,1))
+                 ),
+             size = 2.5) +
+  theme_minimal() +
+  labs(title = "Boxplot: Sebaran Rating Restoran per Kota",
+       subtitle = "Sumber: webscrape GrabFood - filtered") +
+  theme(axis.title = element_blank(),
+        axis.text.y = element_blank())
+```
+
+
+
+
+```{r}
+harga_termahal_merchant %>% 
+  filter(harga_max < 250001) %>% 
+  DT::datatable()
+```
