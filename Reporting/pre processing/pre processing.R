@@ -24,43 +24,31 @@ setwd("~/Documents/Sumut_Graber/Reporting/pre processing")
   kategori = list.files(path)
   # ambil semua file name
   file_name = paste0(path,"/",kategori)
-  # bebersih kategori
-  kategori = kategori %>% gsub(".rda","",.) %>% gsub("\\_"," ",.)
   # import data bakmi
-  i = 1
-  load(file_name[i])
-  df_1_1 = 
-    do.call(rbind,bakmi) %>% 
-    filter(!is.na(lat)) %>% 
-    mutate(kategori = kategori[i]) %>% 
-    distinct()
-  # import data cafe
-  i = 2
-  load(file_name[i])
-  df_1_2 = 
-    do.call(rbind,cafe) %>% 
-    filter(!is.na(lat)) %>% 
-    mutate(kategori = kategori[i]) %>% 
-    distinct()
-  # import data mie ayam
-  i = 3
-  load(file_name[i])
-  df_1_3 = 
-    do.call(rbind,mie_ayam) %>% 
-    filter(!is.na(lat)) %>% 
-    mutate(kategori = kategori[i]) %>% 
-    distinct()
-  # import data roti bakar
-  i = 4
-  load(file_name[i])
-  df_1_4 = 
-    do.call(rbind,roti_bakar) %>% 
-    filter(!is.na(lat)) %>% 
-    mutate(kategori = kategori[i]) %>% 
-    distinct()
-  # gabung data binjai
-  df_binjai = rbind(df_1_1,df_1_2) %>% rbind(.,df_1_3) %>% rbind(.,df_1_4)
-  
+  load(file_name)
+  # bebersih data
+  df_binjai = 
+    do.call(rbind,data_gmaps) %>% 
+    mutate(kota = "Binjai",
+           link = url) %>% 
+    separate(url,
+             into = c("dummy","save"),
+             sep = "!3d") %>% 
+    select(-dummy) %>% 
+    separate(save,
+             into = c("lng","save"),
+             sep = "!4d") %>% 
+    separate(save,
+             into = c("lat","dummy"),
+             sep = "\\?") %>% 
+    select(-dummy) %>% 
+    mutate(ratings = gsub("\\,",".",ratings),
+           ratings = as.numeric(ratings),
+           reviews = gsub("[a-z]","",stringr::str_remove(reviews," ")),
+           lat = as.numeric(lat),
+           lng = as.numeric(lng)
+           )
+
 # pematang siantar 
   # path
   path = "~/Documents/Sumut_Graber/Grab/Data/Pematang Siantar/Google Maps"
@@ -68,108 +56,42 @@ setwd("~/Documents/Sumut_Graber/Reporting/pre processing")
   kategori = list.files(path)
   # ambil semua file name
   file_name = paste0(path,"/",kategori)
-  # bebersih kategori
-  kategori = kategori %>% gsub(".rda","",.) %>% gsub("\\_"," ",.)
   # import data bakmi
-  i = 1
-  load(file_name[i])
-  df_1_1 = 
-    do.call(rbind,bakmi) %>% 
-    filter(!is.na(lat)) %>% 
-    mutate(kategori = kategori[i]) %>% 
-    distinct()
-  # import data cafe
-  i = 2
-  load(file_name[i])
-  df_1_2 = 
-    do.call(rbind,cafe) %>% 
-    filter(!is.na(lat)) %>% 
-    mutate(kategori = kategori[i]) %>% 
-    distinct()
-  # import data mie ayam
-  i = 3
-  load(file_name[i])
-  df_1_3 = 
-    do.call(rbind,mie_ayam) %>% 
-    filter(!is.na(lat)) %>% 
-    mutate(kategori = kategori[i]) %>% 
-    distinct()
-  # import data roti bakar
-  i = 4
-  load(file_name[i])
-  df_1_4 = 
-    do.call(rbind,roti_bakar) %>% 
-    filter(!is.na(lat)) %>% 
-    mutate(kategori = kategori[i]) %>% 
-    distinct()
-  # gabung data pematang siantar
-  df_pematang_siantar = rbind(df_1_1,df_1_2) %>% rbind(.,df_1_3) %>% rbind(.,df_1_4)
-  
-# tebing tinggi 
-  # path
-  path = "~/Documents/Sumut_Graber/Grab/Data/Tebing Tinggi/Google Maps"
-  # kategori
-  kategori = list.files(path)
-  # ambil semua file name
-  file_name = paste0(path,"/",kategori)
-  # bebersih kategori
-  kategori = kategori %>% gsub(".rda","",.) %>% gsub("\\_"," ",.)
-  # import data bakmi
-  i = 1
-  load(file_name[i])
-  df_1_1 = 
-    do.call(rbind,bakmi) %>% 
-    filter(!is.na(lat)) %>% 
-    mutate(kategori = kategori[i]) %>% 
-    distinct()
-  # import data cafe
-  i = 2
-  load(file_name[i])
-  df_1_2 = 
-    do.call(rbind,cafe) %>% 
-    filter(!is.na(lat)) %>% 
-    mutate(kategori = kategori[i]) %>% 
-    distinct()
-  # import data mie ayam
-  i = 3
-  load(file_name[i])
-  df_1_3 = 
-    do.call(rbind,mie_ayam) %>% 
-    filter(!is.na(lat)) %>% 
-    mutate(kategori = kategori[i]) %>% 
-    distinct()
-  # import data roti bakar
-  i = 4
-  load(file_name[i])
-  df_1_4 = 
-    do.call(rbind,roti_bakar) %>% 
-    filter(!is.na(lat)) %>% 
-    mutate(kategori = kategori[i]) %>% 
-    distinct()
-  # gabung data tebing tinggi
-  df_tebing_tinggi = rbind(df_1_1,df_1_2) %>% rbind(.,df_1_3) %>% rbind(.,df_1_4)  
+  load(file_name)
+  # bebersih data
+  df_pematang_siantar = 
+    do.call(rbind,data_gmaps) %>% 
+    mutate(kota = "Pematang Siantar",
+           link = url) %>% 
+    separate(url,
+             into = c("dummy","save"),
+             sep = "!3d") %>% 
+    select(-dummy) %>% 
+    separate(save,
+             into = c("lng","save"),
+             sep = "!4d") %>% 
+    separate(save,
+             into = c("lat","dummy"),
+             sep = "\\?") %>% 
+    select(-dummy) %>% 
+    mutate(ratings = gsub("\\,",".",ratings),
+           ratings = as.numeric(ratings),
+           reviews = gsub("[a-z]","",stringr::str_remove(reviews," ")),
+           lat = as.numeric(lat),
+           lng = as.numeric(lng)
+    )
   
 # gabung semua data tersebut
-df_binjai = df_binjai %>% mutate(kota = "binjai")
-df_pematang_siantar = df_pematang_siantar %>% mutate(kota = "pematang siantar")
-df_tebing_tinggi = df_tebing_tinggi %>% mutate(kota = "tebing tinggi")
-df_maps = rbind(df_binjai,df_pematang_siantar) %>% rbind(.,df_tebing_tinggi)
-
-# kita bersihkan terlebih dahulu
-gabung_maps = 
-  df_maps %>% 
-  select(nama,kategori,kota) %>% 
-  group_by(nama,kota) %>% 
-  summarise(kategori_total = paste(kategori,collapse = ",")) %>% 
-  ungroup()
-unique = 
-  df_maps %>% 
-  select(nama,alamat,lat,lng,kota) %>% 
-  distinct()
-df_maps_clean = merge(gabung_maps,unique,all.x = T)
+df_maps = rbind(df_binjai,df_pematang_siantar) 
 
 # kita save dulu ya
-save(df_maps_clean,file = "gmaps.rda")
+save(df_maps,file = "gmaps.rda")
+
+
+
+
+
+
 
 
 
