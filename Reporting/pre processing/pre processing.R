@@ -80,9 +80,43 @@ setwd("~/Documents/Sumut_Graber/Reporting/pre processing")
            lat = as.numeric(lat),
            lng = as.numeric(lng)
     )
+
+# tebing tinggi 
+  # path
+  path = "~/Documents/Sumut_Graber/Grab/Data/Tebing Tinggi/Google Maps"
+  # kategori
+  kategori = list.files(path)
+  # ambil semua file name
+  file_name = paste0(path,"/",kategori)
+  # import data bakmi
+  load(file_name)
+  # bebersih data
+  df_tebing_tinggi = 
+    do.call(rbind,data_gmaps) %>% 
+    mutate(kota = "Tebing Tinggi",
+           link = url) %>% 
+    separate(url,
+             into = c("dummy","save"),
+             sep = "!3d") %>% 
+    select(-dummy) %>% 
+    separate(save,
+             into = c("lng","save"),
+             sep = "!4d") %>% 
+    separate(save,
+             into = c("lat","dummy"),
+             sep = "\\?") %>% 
+    select(-dummy) %>% 
+    mutate(ratings = gsub("\\,",".",ratings),
+           ratings = as.numeric(ratings),
+           reviews = gsub("[a-z]","",stringr::str_remove(reviews," ")),
+           lat = as.numeric(lat),
+           lng = as.numeric(lng)
+    )
   
 # gabung semua data tersebut
-df_maps = rbind(df_binjai,df_pematang_siantar) 
+df_maps = rbind(df_binjai,df_pematang_siantar)   
+# gabung semua data tersebut
+df_maps = rbind(df_tebing_tinggi,df_maps) 
 
 # kita save dulu ya
 save(df_maps,file = "gmaps.rda")

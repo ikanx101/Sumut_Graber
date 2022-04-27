@@ -1,0 +1,53 @@
+---
+title: "Report Kesamaan dan Perbedaan Grab dan Google Maps"
+subtitle: "Pada kota Binjai, Pematang Siantar, dan Tebing Tinggi"
+author: "Market Riset Nutrifood"
+date: "27 April 2022"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 5
+    toc_float: 
+        collapsed: false
+        smooth_scroll: true
+    number_sections: true
+    theme: sandstone
+    highlight: zenburn
+    fig_caption: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# PENDAHULUAN
+
+## Latar Belakang
+
+Kita sudah mengumpulkan data _merchants_ dari __Grab__ dan __Google Maps__ pada beberapa kota di Sumatera Utara seperti Binjai, Pematang Siantar, dan Tebing Tinggi. _Merchants_ tersebut dikumpulkan dengan cara sebagai berikut:
+
+1. _Grab_ ; _web scrape_ halaman _GrabFood_ tanpa ada _filtering_ sama sekali pada nama _merchant_ dan menu yang dijual. Semua _merchants_ yang ada pada halaman tersebut diambil.
+1. _Google Maps_ ; _web scrape_ halaman _Google Maps_ dengan cara mengarahkan ke kota tertentu dan mencari _restaurants nearby_. Tidak dilakukan _filtering_ apapun terhadap nama restoran dan menu. Semua restoran yang ada pada halaman tersebut diambil.
+
+Sekarang bagaimana mencari irisan antar keduanya?
+
+## Tujuan
+
+Mencari _merchants_ yang ada di Grab tapi tidak ada di Google Maps (_vice versa_).
+
+## Metode
+
+Pencocokan dilakukan dengan cara sebagai berikut:
+
+### _Grab_
+
+Semua data _merchants GrabFood_ yang telah dikumpulkan akan dicari kembali ke _Google Maps_. Jika ditemukan, berarti _merchant_ tersebut ada pada kedua _platforms_ digital tersebut. Namun jika _Google Maps_ memberikan _merchant_ lain sebagai hasil pencarian, berarti _merchant_ tersebut tidak ditemukan di _Google Maps_.
+
+### _Google Maps_
+
+Semua data restoran _Google Maps_ yang telah dikumpulkan akan dicari kembali ke _GrabFood_. Jika ditemukan, berarti restoran tersebut ada pada kedua _platforms_ digital tersebut. Namun jika sebaliknya, maka restoran tersebut tidak ada di _GrabFood_.
+
+### Metode Pencocokan
+
+Seringkali hasil pencarian _merchant_ atau restoran menghasilkan nama yang sedikit berbeda (atau berbeda sama sekali). Oleh karena itu perlu dilakukan pencocokan antara nama _merchant_ dan restoran yang dicari dengan nama hasil pencarian.
+
