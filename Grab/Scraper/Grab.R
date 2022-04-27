@@ -31,21 +31,21 @@ scrape_grab = function(url){
 url = "https://food.grab.com/id/en/restaurants"
 
 # memulai selenium
-driver <- RSelenium::rsDriver(browser = "chrome",
-                              chromever = "99.0.4844.35" )
-remote_driver <- driver[["client"]] 
+driver = RSelenium::rsDriver(browser = "chrome",
+                             chromever = "101.0.4951.41" )
+remote_driver = driver[["client"]] 
 
 # membuka situs grab
 remote_driver$navigate(url)
 
 # log nama
 nama_file = Sys.time() %>% janitor::make_clean_names()
-nama_file = paste0("~/Documents/Sumut_Graber/",nama_file," - bekasi.rda")
+nama_file = paste0("~/Documents/Sumut_Graber/Data Hasil Scrape/Sibolga/Grab/",nama_file," - medan.rda")
 
 # mencari klik load more
 button_element = remote_driver$findElement(using = 'css', value = ".ant-btn-block")
 # mengklik load more sekian kali
-for(i in 1:10){
+for(i in 1:20){
   button_element$clickElement()
   print(paste0("sudah diklik load more ",i," x"))
   Sys.sleep(3)
