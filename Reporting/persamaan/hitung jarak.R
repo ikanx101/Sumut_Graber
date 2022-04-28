@@ -11,10 +11,4 @@ kesamaan = function(a,b){
   return(output)
 }
 
-# fungsi untuk membersihkan string
-bersihin = function(text){
-  text %>% 
-    unique() %>% 
-    janitor::make_clean_names() %>% 
-    gsub("\\_"," ",.)
-}
+
