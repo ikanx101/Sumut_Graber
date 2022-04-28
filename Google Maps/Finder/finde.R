@@ -137,6 +137,6 @@ bersihin = function(text){
 
 # memulai selenium
 driver =  RSelenium::rsDriver(browser = "chrome",
-                              chromever = "99.0.4844.35" )
+                              chromever = "101.0.4951.41" )
 remote_driver = driver[["client"]] 
 

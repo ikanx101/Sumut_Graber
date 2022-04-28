@@ -7,29 +7,24 @@ source("~/Documents/Sumut_Graber/Google Maps/Finder/finde.R")
 setwd("~/Documents/Sumut_Graber/Google Maps/Finder/cari cafe sumut")
 
 # load data merchant grab
-load("~/Documents/Sumut_Graber/Reporting/pre processing/grab.rda")
+load("~/Documents/Sumut_Graber/Reporting/grab vs maps/siap_cari.rda")
 
 # ambil hanya nama saja
-nama = 
-  df_grab %>% 
-  select(nama_resto,kota) %>% 
-  mutate(nama_cafe = paste(nama_resto,kota)) %>% 
-  distinct() %>% 
-  .$nama_cafe
+nama = df_grab$keywords %>% unique() 
 
 # siapin rumah untuk data
 data_final = vector("list",length(nama))
 
 # proses scraping
-for(i in 87:length(nama)){
+for(i in 1:length(nama)){
   nama_clean = iconv(nama[i],"latin1","ASCII",sub = "")
   data_final[[i]] = cari_tempat(nama_clean)
-  Sys.sleep(2)
+  Sys.sleep(3)
   print(paste0("Scrape ke-",i," == DONE"))
 }
 
 # simmilarity
-simi_simi = data.frame(ig = NA,
+simi_simi = data.frame(grab = NA,
                        maps = NA,
                        similarity = NA)
 
@@ -55,4 +50,4 @@ simi_simi =
   )
   )
 
-save(data_final,simi_simi,file = "scrape data.rda")
+save(data_final,simi_simi,file = "gmaps cari di grab done.rda")
