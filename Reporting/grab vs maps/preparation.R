@@ -4,7 +4,7 @@ library(ggplot2)
 library(tidyr)
 
 # ambil function hitung jarak
-source("~/NUTRIFOOD Sumut Graber/Reporting/persamaan/hitung jarak.R")
+source("~/Documents/Sumut_Graber/Reporting/persamaan/hitung jarak.R")
 
 # kita hapus yang paling akhir
 bersihin_simi = function(news){
@@ -15,7 +15,7 @@ bersihin_simi = function(news){
 }
 
 # ambil data asli grab
-load("~/NUTRIFOOD Sumut Graber/Reporting/pre processing/grab.rda")
+load("~/Documents/Sumut_Graber/Reporting/pre processing/grab.rda")
 df_grab  = 
   df_grab %>% 
   filter(!grepl("supermarket|mart|specialty",kategori_resto,ignore.case = T)) %>% 
@@ -25,7 +25,7 @@ df_grab  =
 nama_merchant = df_grab$nama_merchant_clean %>% unique()
 
 # ambil data hasil pencarian grab di gmaps
-load("~/NUTRIFOOD Sumut Graber/Google Maps/Finder/cari cafe sumut/hasil cocok grab gmaps sumut.rda")
+load("~/Documents/Sumut_Graber/Google Maps/Finder/cari cafe sumut/hasil cocok grab gmaps sumut.rda")
 simi_simi = 
   simi_simi %>% 
   rename(grab = ig) %>% 
@@ -34,3 +34,5 @@ simi_simi =
   ungroup() %>% 
   filter(grepl(paste(nama_merchant,collapse = "|"),
                grab))
+
+save(data_final,df_grab,simi_simi,file = "grab ke gmaps.rda")
