@@ -24,16 +24,37 @@ library(dplyr)
 library(ggplot2)
 library(tidyr)
 
-# ambil data grab finder
-grab_db = list.files("~/Documents/Sumut_Graber/Grab/Finder",pattern = "*.rda",full.names = T)
-for(i in 1:length(grab_db)){
-  load(grab_db[i])
+# ambil function hitung jarak
+source("~/NUTRIFOOD Sumut Graber/Reporting/persamaan/hitung jarak.R")
+
+# kita hapus yang paling akhir
+bersihin_simi = function(news){
+  news = gsub("pematang|tebing","",news)
+  news = strsplit(news,split = " ") %>% unlist()
+  news = news[-length(news)] %>% paste(collapse = " ")
+  return(news)
 }
-# gabungin data
-data_binjai$kota = "Binjai"
-data_pematang_siantar$kota = "Pematang Siantar"
-data_tebing_tinggi$kota = "Tebing Tinggi"
-grab_db = rbind(data_binjai,data_pematang_siantar) %>% rbind(.,data_tebing_tinggi)
+
+# ambil data asli grab
+load("~/NUTRIFOOD Sumut Graber/Reporting/pre processing/grab.rda")
+df_grab  = 
+  df_grab %>% 
+  filter(!grepl("supermarket|mart|specialty",kategori_resto,ignore.case = T)) %>% 
+  rowwise() %>% 
+  mutate(nama_merchant_clean = bersihin(nama_resto)) %>% 
+  ungroup()
+nama_merchant = df_grab$nama_merchant_clean %>% unique()
+
+# ambil data hasil pencarian grab di gmaps
+load("~/NUTRIFOOD Sumut Graber/Google Maps/Finder/cari cafe sumut/hasil cocok grab gmaps sumut.rda")
+simi_simi = 
+  simi_simi %>% 
+  rename(grab = ig) %>% 
+  rowwise() %>% 
+  mutate(grab = bersihin_simi(grab)) %>% 
+  ungroup() %>% 
+  filter(grepl(paste(nama_merchant,collapse = "|"),
+               grab))
 ```
 
 # PENDAHULUAN
@@ -99,8 +120,98 @@ nomnoml::nomnoml("#direction: down
 
 Seringkali hasil pencarian _merchant_ atau restoran menghasilkan nama yang sedikit berbeda (atau berbeda sama sekali). Oleh karena itu perlu dilakukan pencocokan antara nama _merchant_ dan restoran yang dicari dengan nama hasil pencarian. Metode pencocokan yang digunakan adalah kombinasi antara [_cosine similarity_](https://en.wikipedia.org/wiki/Cosine_similarity) dan [_jaccard similarity_](https://en.wikipedia.org/wiki/Jaccard_index).
 
-# DATA YANG DIGUNAKAN
+# GRABFOOD
 
 ## Hasil _Scrape_ Grab
 
+Berikut adalah berapa banyak _merchants_ yang didapatkan dari masing-masing kota:
 
+```{r,echo=FALSE,fig.align='center'}
+df_grab %>% 
+  select(nama_resto,kota) %>% 
+  distinct() %>% 
+  group_by(kota) %>% 
+  tally() %>% 
+  ungroup() %>% 
+  mutate(persen = n / sum(n) * 100,
+         persen = round(persen,1),
+         label = paste0(persen,"%")) %>% 
+  ggplot(aes(x = kota,
+             y = persen)) +
+  geom_col(color = "black",
+           fill = "steelblue") +
+  geom_label(aes(label = paste0("n = ",
+                                n,
+                                "\n",
+                                label),
+                 y = persen),
+             size = 3) +
+  ylim(0,70) +
+  theme_minimal() +
+  theme(axis.text.y = element_blank(),
+        axis.title = element_blank()) +
+  labs(title = "Perolehan Hasil Scrape",
+       subtitle = "Data hasil scrape GrabFood")
+```
+
+Berikut adalah kategori resto per kota:
+
+```{r,echo=FALSE,fig.height=11}
+df_grab %>% 
+  select(nama_resto,kategori_resto,kota) %>%
+  distinct() %>% 
+  separate_rows(kategori_resto,sep = "\\,") %>% 
+  group_by(kategori_resto,kota) %>% 
+  tally() %>% 
+  ungroup() %>% 
+  group_by(kota) %>% 
+  mutate(persen = n / sum(n) * 100,
+         persen = round(persen,1),
+         label = paste0(persen,"%")) %>% 
+  ungroup() %>% 
+  arrange(kota) %>% 
+  ggplot(aes(x = kota,
+             y = kategori_resto)) +
+  geom_tile(aes(fill = persen)) +
+  scale_fill_gradient(low = "darkred",high = "steelblue") +
+  geom_label(aes(label = paste0("n = ",n,"\n",label)),
+             size = 2) +
+  theme_minimal() +
+  labs(fill = "Persentase",
+       title = "Kategori Merchant per Kota",
+       subtitle = "Data hasil scrape GrabFood")
+```
+
+## Hasil Pencocokan Grab ke Google Maps
+
+
+
+
+```
+rm(list=ls())
+
+# ambil data grab finder
+grab_db = list.files("~/NUTRIFOOD Sumut Graber/Grab/Finder",pattern = "*.rda",full.names = T)
+for(i in 1:length(grab_db)){
+  load(grab_db[i])
+}
+# gabungin data
+data_binjai$kota = "Binjai"
+data_pematang_siantar$kota = "Pematang Siantar"
+data_tebing_tinggi$kota = "Tebing Tinggi"
+grab_db_simi = rbind(data_binjai,data_pematang_siantar) %>% rbind(.,data_tebing_tinggi)
+
+# hitung persamaan di grab_db_simi
+grab_db_simi = 
+  grab_db_simi %>% 
+  rowwise() %>% 
+  mutate(maps_new = bersihin(maps),
+         grab_new = bersihin(grab),
+         similarity = kesamaan(maps_new,grab_new)) %>% 
+  ungroup()
+
+
+
+# dibersihkan dulu dari data yang gak perlu
+rm(data_binjai,data_pematang_siantar,data_tebing_tinggi)
+```
