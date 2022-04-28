@@ -19,3 +19,9 @@ df_grab  =
   rowwise() %>% 
   mutate(nama_merchant_clean = bersihin(nama_resto)) %>% 
   ungroup()
+
+df_grab = 
+  df_grab %>% 
+  mutate(keywords = paste(nama_merchant_clean,kota,sep = ","))
+
+save(df_grab,file = "siap_cari.rda")
