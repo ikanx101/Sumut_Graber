@@ -2,7 +2,7 @@ library(dplyr)
 library(rvest)
 library(RSelenium)
 
-setwd("~/Documents/Sumut_Graber/Grab/Scraper")
+#setwd("~/Documents/Sumut_Graber/Grab/Scraper")
 
 # dimulai dari hati yang bersih
 rm(list=ls())
