@@ -2,7 +2,7 @@
 title: "Report Kesamaan dan Perbedaan Grab dan Google Maps"
 subtitle: "Pada kota Binjai, Pematang Siantar, dan Tebing Tinggi"
 author: "Market Riset Nutrifood"
-date: "28 April 2022"
+date: "31 Mei 2022"
 output: 
   html_document:
     toc: true
@@ -23,7 +23,7 @@ rm(list=ls())
 library(dplyr)
 library(ggplot2)
 library(tidyr)
-load("grab ke gmaps.rda")
+
 ```
 
 # PENDAHULUAN
@@ -89,13 +89,13 @@ nomnoml::nomnoml("#direction: down
 
 Seringkali hasil pencarian _merchant_ atau restoran menghasilkan nama yang sedikit berbeda (atau berbeda sama sekali). Oleh karena itu perlu dilakukan pencocokan antara nama _merchant_ dan restoran yang dicari dengan nama hasil pencarian. Metode pencocokan yang digunakan adalah kombinasi antara [_cosine similarity_](https://en.wikipedia.org/wiki/Cosine_similarity) dan [_jaccard similarity_](https://en.wikipedia.org/wiki/Jaccard_index).
 
-# GRABFOOD
+# _GRABFOOD_
 
 ## Hasil _Scrape_ Grab
 
 Berikut adalah berapa banyak _merchants_ yang didapatkan dari masing-masing kota:
 
-```{r,echo=FALSE,fig.align='center'}
+```
 df_grab %>% 
   select(nama_resto,kota) %>% 
   distinct() %>% 
@@ -123,21 +123,9 @@ df_grab %>%
        subtitle = "Data hasil scrape GrabFood")
 ```
 
-```{r}
-df_grab_sel = 
-  df_grab %>% 
-  select(kota,nama_merchant_clean) %>% 
-  distinct() 
-
-df_grab_sel$nama_merchant_clean %>% unique()
-
-setdiff(trimws(df_grab_sel$nama_merchant_clean),
-        trimws(simi_simi$grab))
-```
-
 Berikut adalah kategori resto per kota:
 
-```{r,echo=FALSE,fig.height=11}
+```
 df_grab %>% 
   select(nama_resto,kategori_resto,kota) %>%
   distinct() %>% 
@@ -165,34 +153,43 @@ df_grab %>%
 
 ## Hasil Pencocokan Grab ke Google Maps
 
+# _GOOGLE MAPS_
 
-
-
-```
+```{r,include=FALSE}
 rm(list=ls())
-
-# ambil data grab finder
-grab_db = list.files("~/NUTRIFOOD Sumut Graber/Grab/Finder",pattern = "*.rda",full.names = T)
-for(i in 1:length(grab_db)){
-  load(grab_db[i])
-}
-# gabungin data
-data_binjai$kota = "Binjai"
-data_pematang_siantar$kota = "Pematang Siantar"
-data_tebing_tinggi$kota = "Tebing Tinggi"
-grab_db_simi = rbind(data_binjai,data_pematang_siantar) %>% rbind(.,data_tebing_tinggi)
-
-# hitung persamaan di grab_db_simi
-grab_db_simi = 
-  grab_db_simi %>% 
-  rowwise() %>% 
-  mutate(maps_new = bersihin(maps),
-         grab_new = bersihin(grab),
-         similarity = kesamaan(maps_new,grab_new)) %>% 
-  ungroup()
-
-
-
-# dibersihkan dulu dari data yang gak perlu
-rm(data_binjai,data_pematang_siantar,data_tebing_tinggi)
+load("gmaps_ready.rda")
 ```
+
+## Hasil _Scrape_ Google Maps
+
+Berikut adalah hasil _scrape_ dari Google Maps.
+
+```{r,echo=FALSE}
+df_maps %>% 
+  group_by(kota) %>% 
+  tally() %>% 
+  ungroup() %>% 
+  mutate(persen = n / sum(n) * 100,
+         persen = round(persen,1),
+         label = paste0(persen,"%")) %>% 
+  ggplot(aes(x = kota,
+             y = persen)) +
+  geom_col(color = "black",
+           fill = "steelblue") +
+  geom_label(aes(label = paste0("n = ",
+                                n,
+                                "\n",
+                                label),
+                 y = persen),
+             size = 3) +
+  ylim(0,41) +
+  theme_minimal() +
+  theme(axis.text.y = element_blank(),
+        axis.title = element_blank()) +
+  labs(title = "Perolehan Hasil Scrape",
+       subtitle = "Data hasil scrape GrabFood")
+```
+
+## Hasil Pencocokan Google Maps ke GrabFood
+
+_cut off_ 0.20616540
