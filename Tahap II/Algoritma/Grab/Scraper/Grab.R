@@ -4,6 +4,8 @@ library(RSelenium)
 
 #setwd("~/Documents/Sumut_Graber/Grab/Scraper")
 
+kota = "medan"
+
 # dimulai dari hati yang bersih
 rm(list=ls())
 
@@ -38,15 +40,16 @@ remote_driver = driver[["client"]]
 # membuka situs grab
 remote_driver$navigate(url)
 
+
 # log nama
 nama_file = Sys.time() %>% janitor::make_clean_names()
 #nama_file = paste0("E:/DATA SCIENCE/Sumut Grab Gmaps/Tahap II/Algoritma/Grab/Scraper/",nama_file," - binjai.rda")
-nama_file = paste0("~/Documents/Sumut_Graber/Tahap II/Algoritma/Grab/Scraper/",nama_file," - pematang siantar.rda")
+nama_file = paste0("~/Documents/Sumut_Graber/Tahap II/Algoritma/Grab/Scraper/",nama_file," - ",kota,".rda")
 
 # mencari klik load more
 button_element = remote_driver$findElement(using = 'css', value = ".ant-btn-block")
 # mengklik load more sekian kali
-for(i in 1:20){
+for(i in 1:10){
   button_element$clickElement()
   print(paste0("sudah diklik load more ",i," x"))
   Sys.sleep(5)
@@ -74,7 +77,6 @@ for(i in 1:length(links)){
   pesan = paste0("Proses scrape situs ke-",i," dari total: ",length(links))
   print(pesan)
   }
-
 # gabung semua data final
 data_final = do.call(rbind,hasil)
 data_final = 
