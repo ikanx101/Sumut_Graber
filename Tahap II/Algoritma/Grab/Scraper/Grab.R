@@ -3,6 +3,7 @@ library(rvest)
 library(RSelenium)
 
 #setwd("~/Documents/Sumut_Graber/Grab/Scraper")
+setwd("E:/DATA SCIENCE/Sumut Grab Gmaps/Tahap II/Algoritma/Grab/Scraper")
 
 kota = "medan"
 
@@ -43,7 +44,7 @@ remote_driver$navigate(url)
 
 # log nama
 nama_file = Sys.time() %>% janitor::make_clean_names()
-#nama_file = paste0("E:/DATA SCIENCE/Sumut Grab Gmaps/Tahap II/Algoritma/Grab/Scraper/",nama_file," - binjai.rda")
+#nama_file = paste0("E:/DATA SCIENCE/Sumut Grab Gmaps/Tahap II/Algoritma/Grab/Scraper/",nama_file," - ",kota,".rda")
 nama_file = paste0("~/Documents/Sumut_Graber/Tahap II/Algoritma/Grab/Scraper/",nama_file," - ",kota,".rda")
 
 # mencari klik load more
