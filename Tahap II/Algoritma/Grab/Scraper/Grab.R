@@ -8,7 +8,7 @@ setwd("E:/DATA SCIENCE/Sumut Grab Gmaps/Tahap II/Algoritma/Grab/Scraper")
 # dimulai dari hati yang bersih
 rm(list=ls())
 
-kota = "medan"
+kota = "tebing tinggi"
 
 # function utk scrape grab
 scrape_grab = function(url){
@@ -44,13 +44,13 @@ remote_driver$navigate(url)
 
 # log nama
 nama_file = Sys.time() %>% janitor::make_clean_names()
-#nama_file = paste0("E:/DATA SCIENCE/Sumut Grab Gmaps/Tahap II/Algoritma/Grab/Scraper/",nama_file," - ",kota,".rda")
-nama_file = paste0("~/Documents/Sumut_Graber/Tahap II/Algoritma/Grab/Scraper/",nama_file," - ",kota,".rda")
+nama_file = paste0(nama_file," - ",kota,".rda")
+#nama_file = paste0("~/Documents/Sumut_Graber/Tahap II/Algoritma/Grab/Scraper/",nama_file," - ",kota,".rda")
 
 # mencari klik load more
 button_element = remote_driver$findElement(using = 'css', value = ".ant-btn-block")
 # mengklik load more sekian kali
-for(i in 1:20){
+for(i in 1:5){
   button_element$clickElement()
   print(paste0("sudah diklik load more ",i," x"))
   Sys.sleep(5)
