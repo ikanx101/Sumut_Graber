@@ -5,10 +5,10 @@ library(RSelenium)
 #setwd("~/Documents/Sumut_Graber/Grab/Scraper")
 setwd("E:/DATA SCIENCE/Sumut Grab Gmaps/Tahap II/Algoritma/Grab/Scraper")
 
-kota = "medan"
-
 # dimulai dari hati yang bersih
 rm(list=ls())
+
+kota = "medan"
 
 # function utk scrape grab
 scrape_grab = function(url){
@@ -50,7 +50,7 @@ nama_file = paste0("~/Documents/Sumut_Graber/Tahap II/Algoritma/Grab/Scraper/",n
 # mencari klik load more
 button_element = remote_driver$findElement(using = 'css', value = ".ant-btn-block")
 # mengklik load more sekian kali
-for(i in 1:10){
+for(i in 1:20){
   button_element$clickElement()
   print(paste0("sudah diklik load more ",i," x"))
   Sys.sleep(5)
